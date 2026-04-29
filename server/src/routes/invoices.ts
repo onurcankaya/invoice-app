@@ -1,6 +1,11 @@
 import express, { Request, Response } from 'express';
-import { getAllInvoices, saveInvoices, getInvoice } from '../data/invoices';
-import { createInvoiceSchema } from '../schemas/invoice';
+import {
+  getAllInvoices,
+  createInvoice,
+  getInvoice,
+  updateInvoice,
+} from '../data/invoices';
+import { createInvoiceSchema, updateInvoiceSchema } from '../schemas/invoice';
 import { generateId } from '../utils/generateId';
 import { Invoice } from '../types/invoice';
 
@@ -12,25 +17,26 @@ router.get('/', async (req: Request, res: Response) => {
 });
 
 router.post('/', async (req: Request, res: Response) => {
-  const validatedData = createInvoiceSchema.parse(req.body);
   const id = generateId();
-  const allInvoices = await getAllInvoices();
+  const validatedData = createInvoiceSchema.parse(req.body);
 
-  const newInvoice = {
-    id,
-    ...validatedData,
-  };
+  const newInvoice = { id, ...validatedData };
+  const data = await createInvoice(newInvoice);
 
-  const invoicesUpdated = [newInvoice, ...allInvoices];
-
-  await saveInvoices(invoicesUpdated);
-
-  res.status(201).json(newInvoice);
+  res.status(201).json(data);
 });
 
 router.get('/:id', async (req: Request, res: Response) => {
   const id = req.params.id as Invoice['id'];
   const data = await getInvoice(id);
+
+  res.status(200).json(data);
+});
+
+router.patch('/:id', async (req: Request, res: Response) => {
+  const id = req.params.id as Invoice['id'];
+  const validatedUpdateData = updateInvoiceSchema.parse(req.body);
+  const data = await updateInvoice(id, validatedUpdateData);
 
   res.status(200).json(data);
 });

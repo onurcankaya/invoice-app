@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { Invoice } from '../types/invoice';
+import { Invoice, CreateInvoiceDTO, UpdateInvoiceDTO } from '../types/invoice';
 import { NotFoundError } from '../middleware/errorHandler';
 
 const DATA_PATH = path.join(__dirname, '../data.json');
@@ -20,6 +20,17 @@ export async function saveInvoices(invoices: Invoice[]) {
   await fs.writeFile(DATA_PATH, jsonString, 'utf-8');
 }
 
+export async function createInvoice(
+  invoice: CreateInvoiceDTO,
+): Promise<Invoice> {
+  const invoices = await getAllInvoices();
+  const updatedInvoices = [invoice, ...invoices];
+
+  await saveInvoices(updatedInvoices);
+
+  return invoice;
+}
+
 export async function getInvoice(id: Invoice['id']): Promise<Invoice> {
   const invoices = await getAllInvoices();
   const invoice = invoices.find((invoice: Invoice) => invoice.id === id);
@@ -29,4 +40,23 @@ export async function getInvoice(id: Invoice['id']): Promise<Invoice> {
   }
 
   return invoice;
+}
+
+export async function updateInvoice(
+  id: Invoice['id'],
+  data: UpdateInvoiceDTO,
+): Promise<Invoice> {
+  const invoices = await getAllInvoices();
+  const index = invoices.findIndex((invoice: Invoice) => invoice.id === id);
+
+  if (index === -1) {
+    throw new NotFoundError('Invoice not found');
+  }
+
+  const updatedInvoice = { ...invoices[index], ...data };
+  invoices[index] = updatedInvoice;
+
+  await saveInvoices(invoices);
+
+  return updatedInvoice;
 }

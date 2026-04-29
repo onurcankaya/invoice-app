@@ -45,10 +45,13 @@ const createInvoiceSchema = z.object({
   total: z.number(),
 });
 
+const updateInvoiceSchema = createInvoiceSchema;
+
 export {
   invoiceStatusSchema,
   addressSchema,
   invoiceItemSchema,
   invoiceSchema,
   createInvoiceSchema,
+  updateInvoiceSchema,
 };
