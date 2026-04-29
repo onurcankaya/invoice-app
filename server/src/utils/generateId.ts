@@ -5,7 +5,7 @@ export function generateId(): string {
 
   const numbers = Array.from({ length: 4 }, () => {
     return Math.floor(Math.random() * 10);
-  }).join();
+  }).join('');
 
   return `${letters}${numbers}`;
 }

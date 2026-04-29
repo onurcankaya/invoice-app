@@ -1,7 +1,8 @@
 import express, { Request, Response } from 'express';
-import { getAllInvoices, saveInvoices } from '../data/invoices';
+import { getAllInvoices, saveInvoices, getInvoice } from '../data/invoices';
 import { createInvoiceSchema } from '../schemas/invoice';
 import { generateId } from '../utils/generateId';
+import { Invoice } from '../types/invoice';
 
 const router = express.Router();
 
@@ -25,6 +26,13 @@ router.post('/', async (req: Request, res: Response) => {
   await saveInvoices(invoicesUpdated);
 
   res.status(201).json(newInvoice);
+});
+
+router.get('/:id', async (req: Request, res: Response) => {
+  const id = req.params.id as Invoice['id'];
+  const data = await getInvoice(id);
+
+  res.status(200).json(data);
 });
 
 export default router;
