@@ -52,9 +52,9 @@ router.patch('/:id/pay', async (req: Request, res: Response) => {
 
 router.delete('/:id', async (req: Request, res: Response) => {
   const id = req.params.id as Invoice['id'];
-  const data = await deleteInvoice(id);
+  await deleteInvoice(id);
 
-  res.status(204).json(data);
+  res.status(204).json();
 });
 
 export default router;
