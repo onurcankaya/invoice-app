@@ -4,6 +4,8 @@ import {
   createInvoice,
   getInvoice,
   updateInvoice,
+  markInvoicePaid,
+  deleteInvoice,
 } from '../data/invoices';
 import { createInvoiceSchema, updateInvoiceSchema } from '../schemas/invoice';
 import { generateId } from '../utils/generateId';
@@ -39,6 +41,20 @@ router.patch('/:id', async (req: Request, res: Response) => {
   const data = await updateInvoice(id, validatedUpdateData);
 
   res.status(200).json(data);
+});
+
+router.patch('/:id/pay', async (req: Request, res: Response) => {
+  const id = req.params.id as Invoice['id'];
+  const data = await markInvoicePaid(id);
+
+  res.status(200).json(data);
+});
+
+router.delete('/:id', async (req: Request, res: Response) => {
+  const id = req.params.id as Invoice['id'];
+  const data = await deleteInvoice(id);
+
+  res.status(204).json(data);
 });
 
 export default router;

@@ -1,6 +1,11 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { Invoice, CreateInvoiceDTO, UpdateInvoiceDTO } from '../types/invoice';
+import {
+  Invoice,
+  CreateInvoiceDTO,
+  UpdateInvoiceDTO,
+  InvoiceStatus,
+} from '../types/invoice';
 import { NotFoundError } from '../middleware/errorHandler';
 
 const DATA_PATH = path.join(__dirname, '../data.json');
@@ -59,4 +64,36 @@ export async function updateInvoice(
   await saveInvoices(invoices);
 
   return updatedInvoice;
+}
+
+export async function markInvoicePaid(id: Invoice['id']): Promise<Invoice> {
+  const invoices = await getAllInvoices();
+  const index = invoices.findIndex((invoice: Invoice) => invoice.id === id);
+
+  if (index === -1) {
+    throw new NotFoundError('Invoice not found');
+  }
+
+  const updatedInvoice = {
+    ...invoices[index],
+    status: 'paid' as InvoiceStatus,
+  };
+  invoices[index] = updatedInvoice;
+
+  await saveInvoices(invoices);
+
+  return updatedInvoice;
+}
+
+export async function deleteInvoice(id: Invoice['id']): Promise<void> {
+  const invoices = await getAllInvoices();
+  const index = invoices.findIndex((invoice: Invoice) => invoice.id === id);
+
+  if (index === -1) {
+    throw new NotFoundError('Invoice not found');
+  }
+
+  invoices.splice(index, 1);
+
+  await saveInvoices(invoices);
 }
