@@ -1,0 +1,101 @@
+[
+  {
+    "id": "TEST01",
+    "createdAt": "2021-08-18",
+    "paymentDue": "2021-08-19",
+    "description": "Test Invoice 1",
+    "paymentTerms": 1,
+    "clientName": "Test Client 1",
+    "clientEmail": "test@test.com",
+    "status": "pending",
+    "senderAddress": {
+      "street": "Test Street",
+      "city": "Test City",
+      "postCode": "12345",
+      "country": "Test Country"
+    },
+    "clientAddress": {
+      "street": "Client Street",
+      "city": "Client City",
+      "postCode": "54321",
+      "country": "Client Country"
+    },
+    "items": [
+      {
+        "name": "Test Item 1",
+        "quantity": 1,
+        "price": 100,
+        "total": 100
+      }
+    ],
+    "total": 100
+  },
+  {
+    "id": "TEST02",
+    "createdAt": "2021-08-18",
+    "paymentDue": "2021-08-19",
+    "description": "Test Invoice 2",
+    "paymentTerms": 1,
+    "clientName": "Test Client 2",
+    "clientEmail": "test@test.com",
+    "status": "draft",
+    "senderAddress": {
+      "street": "Test Street",
+      "city": "Test City",
+      "postCode": "12345",
+      "country": "Test Country"
+    },
+    "clientAddress": {
+      "street": "Client Street",
+      "city": "Client City",
+      "postCode": "54321",
+      "country": "Client Country"
+    },
+    "items": [
+      {
+        "name": "Test Item 1",
+        "quantity": 1,
+        "price": 100,
+        "total": 100
+      },
+      {
+        "name": "Test Item 2",
+        "quantity": 2,
+        "price": 200,
+        "total": 400
+      }
+    ],
+    "total": 500
+  },
+  {
+    "id": "TEST03",
+    "createdAt": "2021-08-18",
+    "paymentDue": "2021-08-19",
+    "description": "Test Invoice 3",
+    "paymentTerms": 1,
+    "clientName": "Test Client 3",
+    "clientEmail": "test@test.com",
+    "status": "paid",
+    "senderAddress": {
+      "street": "Test Street",
+      "city": "Test City",
+      "postCode": "12345",
+      "country": "Test Country"
+    },
+    "clientAddress": {
+      "street": "Client Street",
+      "city": "Client City",
+      "postCode": "54321",
+      "country": "Client Country"
+    },
+    "items": [
+      {
+        "name": "Test Item 1",
+        "quantity": 1,
+        "price": 100,
+        "total": 100
+      }
+    ],
+    "total": 100
+  }
+]
