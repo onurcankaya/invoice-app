@@ -8,7 +8,10 @@ import {
 } from '../types/invoice';
 import { NotFoundError } from '../middleware/errorHandler';
 
-const DATA_PATH = path.join(__dirname, '../data.json');
+const DATA_PATH =
+  process.env.NODE_ENV === 'test'
+    ? path.join(__dirname, './test-data.json')
+    : path.join(__dirname, '../data.json');
 
 export async function getAllInvoices(): Promise<Invoice[]> {
   try {
