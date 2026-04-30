@@ -3,6 +3,9 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Spartan', 'sans-serif'],
+      },
       colors: {
         purple: {
           DEFAULT: '#7C5DFA',
