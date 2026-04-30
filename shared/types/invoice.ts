@@ -28,3 +28,7 @@ export type Invoice = {
   items: Array<InvoiceItem>;
   total: number;
 };
+
+export type CreateInvoiceDTO = Invoice;
+
+export type UpdateInvoiceDTO = Omit<Invoice, 'id'>;
