@@ -1,10 +1,7 @@
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}"
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class',
-   theme: {
+  theme: {
     extend: {
       colors: {
         purple: {
@@ -29,8 +26,8 @@ export default {
           light: '#FF9797',
         },
         bg: '#F8F8FB',
-      }
+      },
     },
   },
   plugins: [],
-}
+};
