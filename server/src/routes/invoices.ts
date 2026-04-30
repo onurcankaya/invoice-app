@@ -9,7 +9,7 @@ import {
 } from '../data/invoices';
 import { createInvoiceSchema, updateInvoiceSchema } from '../schemas/invoice';
 import { generateId } from '../utils/generateId';
-import { Invoice } from '../types/invoice';
+import { Invoice } from '@shared/types/invoice';
 
 const router = express.Router();
 

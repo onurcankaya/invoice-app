@@ -5,7 +5,7 @@ import {
   CreateInvoiceDTO,
   UpdateInvoiceDTO,
   InvoiceStatus,
-} from '../types/invoice';
+} from '@shared/types/invoice';
 import { NotFoundError } from '../middleware/errorHandler';
 
 const DATA_PATH =
