@@ -1,13 +1,12 @@
-function App() {
+import PageLayout from './components/common/PageLayout';
+
+export default function App() {
   return (
-    <main>
-      <section id="center">
-        <div>
-          <h3>Invoice App</h3>
-        </div>
-      </section>
-    </main>
+    <PageLayout>
+      <div>
+        <h1>Invoices</h1>
+        <p>No invoices</p>
+      </div>
+    </PageLayout>
   );
 }
-
-export default App;
