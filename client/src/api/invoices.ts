@@ -7,7 +7,9 @@ import { apiClient, ApiError } from './client';
 import type { AxiosError } from 'axios';
 
 export const invoicesApi = {
-  /** Get all invoices */
+  /**
+   * Get all invoices
+   */
   async getAll(): Promise<Invoice[]> {
     try {
       const response = await apiClient.get<Invoice[]>('/api/invoices');
@@ -22,7 +24,9 @@ export const invoicesApi = {
     }
   },
 
-  /** Get single invoice by ID */
+  /**
+   * Get single invoice by ID
+   */
   async getById(id: Invoice['id']): Promise<Invoice> {
     try {
       const response = await apiClient.get<Invoice>(`/api/invoices/${id}`);
@@ -37,7 +41,9 @@ export const invoicesApi = {
     }
   },
 
-  /** Create new invoice */
+  /**
+   * Create new invoice
+   */
   async create(data: CreateInvoiceDTO): Promise<Invoice> {
     try {
       const response = await apiClient.post<Invoice>('/api/invoices/', data);
@@ -52,7 +58,9 @@ export const invoicesApi = {
     }
   },
 
-  /** Update existing invoice */
+  /**
+   * Update existing invoice
+   */
   async update(id: Invoice['id'], data: UpdateInvoiceDTO): Promise<Invoice> {
     try {
       const response = await apiClient.patch<Invoice>(
@@ -70,7 +78,9 @@ export const invoicesApi = {
     }
   },
 
-  /** Mark invoice as paid */
+  /**
+   * Mark invoice as paid
+   */
   async markPaid(id: Invoice['id']): Promise<Invoice> {
     try {
       const response = await apiClient.patch<Invoice>(
@@ -87,7 +97,9 @@ export const invoicesApi = {
     }
   },
 
-  /** Delete invoice */
+  /**
+   * Delete invoice
+   */
   async delete(id: Invoice['id']): Promise<void> {
     try {
       await apiClient.delete(`/api/invoices/${id}`);

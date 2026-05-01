@@ -8,7 +8,7 @@
 
 @layer base {
   body {
-    @apply bg-bg dark:bg-dark text-navy dark:text-white;
+    @apply bg-bg dark:bg-dark text-navy dark:text-white antialiased;
     font-family: Spartan, sans-serif;
   }
 
