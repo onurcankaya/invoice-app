@@ -28,6 +28,12 @@ export default {
           DEFAULT: '#EC5757',
           light: '#FF9797',
         },
+        green: {
+          DEFAULT: '#33D69F',
+        },
+        orange: {
+          DEFAULT: '#FF8F00',
+        },
         bg: '#F8F8FB',
       },
     },
