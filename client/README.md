@@ -1,73 +1,81 @@
-# React + TypeScript + Vite
+# Invoice App Client
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend application for managing invoices
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js >= 18
+- npm >= 10
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19 + TypeScript
+- Vite for build tooling
+- Tailwind CSS for styling
+- shadcn/ui (Radix UI primitives)
+- Axios for HTTP requests
+- Tanstack React Query for data fetching and state management
+- Vitest + React Testing Library for testing
 
-## Expanding the ESLint configuration
+## Getting Started
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 1. Install Dependencies
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Environment Setup
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Create a `.env` file in the client directory:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+VITE_API_URL=http://localhost:3000
 ```
+
+### 3. Start Development Server
+
+```bash
+npm run dev
+```
+
+Client runs on `http://localhost:5173`
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+- `npm run format` - Format code with Prettier
+
+## Project Structure
+
+```
+client/
+├── src/
+│   ├── api/              # API client and methods
+│   │   ├── client.ts     # Axios instance
+│   │   └── invoices.ts   # Invoice API methods
+│   ├── components/
+│   │   ├── common/       # Shared components (layouts, etc)
+│   │   ├── invoices/     # Invoice-specific components
+│   │   └── ui/           # shadcn/ui primitives
+│   ├── hooks/            # React Query hooks
+│   ├── lib/              # Utility functions
+│   ├── pages/            # Page components
+│   └── main.tsx          # Application entry point
+├── public/               # Static assets
+└── shared/               # Shared types with server
+```
+
+## Development Notes
+
+- **Path aliases**: `@/` maps to `src/`, `@shared/` maps to `../shared/`
+- **Shared types**: TypeScript types are shared with the server via `shared/types/`
+- **React Query DevTools**: Available in development mode for debugging queries
+- **Code quality**: ESLint and Prettier configured for consistent code style
+
+## Server Connection
+
+The client connects to the backend server running on `http://localhost:3000`. See the [server README](../server/README.md) for API endpoint documentation.
