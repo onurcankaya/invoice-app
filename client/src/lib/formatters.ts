@@ -1,4 +1,5 @@
 import { format, parseISO, isValid } from 'date-fns';
+import { DEFAULT_CURRENCY } from '@/lib/constants';
 
 export function formatDate(dateString: string): string {
   try {
@@ -16,14 +17,19 @@ export function formatDate(dateString: string): string {
   }
 }
 
-export function formatCurrency(amount: number, currency: string): string {
+export function formatCurrency(amount: number): string {
   try {
     return new Intl.NumberFormat('en-GB', {
       style: 'currency',
-      currency,
+      currency: DEFAULT_CURRENCY,
     }).format(amount);
   } catch (error) {
-    console.error('Currency formatting error:', error, amount, currency);
-    return `${currency} ${amount}`;
+    console.error(
+      'Currency formatting error:',
+      error,
+      amount,
+      DEFAULT_CURRENCY,
+    );
+    return `${DEFAULT_CURRENCY} ${amount}`;
   }
 }

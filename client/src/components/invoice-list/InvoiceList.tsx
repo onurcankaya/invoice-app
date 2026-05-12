@@ -45,9 +45,7 @@ export default function InvoiceList() {
                   Due {formatDate(invoice.paymentDue)}
                 </p>
                 <p className="body-1 text-left">{invoice.clientName}</p>
-                <h3 className="text-right">
-                  {formatCurrency(invoice.total, 'GBP')}
-                </h3>
+                <h3 className="text-right">{formatCurrency(invoice.total)}</h3>
                 <StatusBadge status={invoice.status} />
                 <img src={arrowRight} alt="" className="inline" />
               </Link>

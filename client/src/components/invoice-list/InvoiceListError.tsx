@@ -16,7 +16,7 @@ export default function InvoiceListError({
       {onRetry && (
         <Button
           size="lg"
-          variant="outline"
+          variant="primary"
           onClick={onRetry}
           className="mt-2"
           aria-label="Retry loading invoices"
