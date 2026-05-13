@@ -1,14 +1,10 @@
-@import 'tw-animate-css';
-@import 'shadcn/tailwind.css';
-@import '@fontsource-variable/geist';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-bg dark:bg-dark text-navy dark:text-white antialiased;
+    @apply dark:bg-dark dark:text-white antialiased;
     font-family: Spartan, sans-serif;
   }
 

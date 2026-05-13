@@ -1,10 +1,5 @@
-import PageLayout from '@components/common/PageLayout';
-import InvoiceList from '@components/invoices/InvoiceList';
+import InvoiceListPage from './pages/InvoiceListPage';
 
 export default function App() {
-  return (
-    <PageLayout>
-      <InvoiceList />
-    </PageLayout>
-  );
+  return <InvoiceListPage />;
 }
