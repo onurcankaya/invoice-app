@@ -1,10 +1,10 @@
-import PageLayout from '@components/common/PageLayout';
+import AppLayout from '@/components/common/AppLayout';
 import InvoiceDetails from '@components/invoice-details/InvoiceDetails';
 
 export default function InvoiceDetailsPage() {
   return (
-    <PageLayout>
+    <AppLayout>
       <InvoiceDetails />
-    </PageLayout>
+    </AppLayout>
   );
 }

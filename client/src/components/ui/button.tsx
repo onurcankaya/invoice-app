@@ -24,9 +24,9 @@ export function Button({
   };
 
   const sizes = {
-    sm: 'px-4 py-3 text-xs',
-    md: 'px-6 py-4 text-xs',
-    lg: 'px-8 py-4 text-xs',
+    sm: 'px-4 py-3 body-1',
+    md: 'px-6 py-4 body-1',
+    lg: 'px-8 py-4 body-1',
   };
 
   return (

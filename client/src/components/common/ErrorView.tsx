@@ -1,17 +1,21 @@
 import { Button } from '@components/ui/button';
 
-type InvoiceListErrorProps = {
+type ErrorViewProps = {
+  title: string;
   error: Error;
   onRetry?: () => void;
+  buttonLabel?: string;
 };
 
-export default function InvoiceListError({
+export default function ErrorView({
+  title,
   error,
   onRetry,
-}: InvoiceListErrorProps) {
+  buttonLabel,
+}: ErrorViewProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-10 gap-4 border border-red rounded-lg">
-      <h2>Error loading invoices</h2>
+    <div className="flex flex-col items-center justify-center py-10 gap-4 bg-red/10 border border-red rounded-lg">
+      <h2>{title}</h2>
       <p className="body-1">{error.message || 'Something went wrong'}</p>
       {onRetry && (
         <Button
@@ -19,9 +23,9 @@ export default function InvoiceListError({
           variant="primary"
           onClick={onRetry}
           className="mt-2"
-          aria-label="Retry loading invoices"
+          aria-label={buttonLabel}
         >
-          Retry
+          {buttonLabel || 'Retry'}
         </Button>
       )}
     </div>

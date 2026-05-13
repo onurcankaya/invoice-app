@@ -5,7 +5,7 @@ type PageLayoutProps = {
   children: ReactNode;
 };
 
-export default function PageLayout({ children }: PageLayoutProps) {
+export default function AppLayout({ children }: PageLayoutProps) {
   return (
     <main className="relative h-full flex bg-dark">
       <Sidebar />
