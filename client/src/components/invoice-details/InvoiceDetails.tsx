@@ -1,21 +1,31 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useInvoice, useDeleteInvoice } from '@/hooks/useInvoices';
+import {
+  useInvoice,
+  useDeleteInvoice,
+  useMarkInvoicePaid,
+} from '@/hooks/useInvoices';
 import { Button } from '@/components/ui/button';
 import StatusBadge from '@/components/common/StatusBadge';
 import ErrorView from '@/components/common/ErrorView';
+import ConfirmDialog from '@/components/common/ConfirmDialog';
 import PageLayout from './PageLayout';
 import InvoiceDetailsSkeleton from './InvoiceDetailsSkeleton';
-import DeleteInvoiceDialog from './DeleteInvoiceDialog';
-
 import { formatDate, formatCurrency } from '@/lib/formatters';
 
 export default function InvoiceDetails() {
-  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false);
-  const [deleteError, setDeleteError] = useState<Error | null>(null);
-
   const params = useParams();
   const navigate = useNavigate();
+
+  const [showDeleteInvoiceDialog, setShowDeleteInvoiceDialog] = useState(false);
+  const [deleteInvoiceError, setDeleteInvoiceError] = useState<Error | null>(
+    null,
+  );
+
+  const [showMarkInvoicePaidDialog, setShowMarkInvoicePaidDialog] =
+    useState(false);
+  const [markInvoicePaidError, setMarkInvoicePaidError] =
+    useState<Error | null>(null);
 
   const {
     data: invoice,
@@ -25,6 +35,8 @@ export default function InvoiceDetails() {
   } = useInvoice(params.id || '');
 
   const { mutate: deleteInvoice, isPending: isDeleting } = useDeleteInvoice();
+  const { mutate: markInvoicePaid, isPending: isMarkingInvoicePaid } =
+    useMarkInvoicePaid();
 
   function handleDeleteInvoice() {
     if (!invoice) return;
@@ -35,12 +47,31 @@ export default function InvoiceDetails() {
       },
       onError: (error) => {
         console.error('Failed to delete invoice:', error);
-        setDeleteError(
+        setDeleteInvoiceError(
           error instanceof Error
             ? error
             : new Error('Failed to delete invoice'),
         );
-        setShowDeleteConfirmDialog(false);
+        setShowDeleteInvoiceDialog(false);
+      },
+    });
+  }
+
+  function handleMarkInvoicePaid() {
+    if (!invoice) return;
+
+    markInvoicePaid(invoice.id, {
+      onSuccess: () => {
+        setShowMarkInvoicePaidDialog(false);
+      },
+      onError: (error) => {
+        console.error('Failed to mark invoice paid:', error);
+        setMarkInvoicePaidError(
+          error instanceof Error
+            ? error
+            : new Error('Failed to mark invoice paid'),
+        );
+        setShowMarkInvoicePaidDialog(false);
       },
     });
   }
@@ -81,13 +112,31 @@ export default function InvoiceDetails() {
 
   return (
     <PageLayout>
-      {deleteError && (
+      {deleteInvoiceError && (
         <div className="bg-red/10 border border-red rounded-lg p-4 flex items-center justify-between">
           <div className="space-y-1">
             <h3 className="text-red font-bold">Failed to delete invoice</h3>
-            <p className="body-1">{deleteError.message}</p>
+            <p className="body-1">{deleteInvoiceError.message}</p>
           </div>
-          <Button variant="secondary" onClick={() => setDeleteError(null)}>
+          <Button
+            variant="secondary"
+            onClick={() => setDeleteInvoiceError(null)}
+          >
+            Dismiss
+          </Button>
+        </div>
+      )}
+
+      {markInvoicePaidError && (
+        <div className="bg-red/10 border border-red rounded-lg p-4 flex items-center justify-between">
+          <div className="space-y-1">
+            <h3 className="text-red font-bold">Failed to mark invoice paid</h3>
+            <p className="body-1">{markInvoicePaidError.message}</p>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() => setMarkInvoicePaidError(null)}
+          >
             Dismiss
           </Button>
         </div>
@@ -101,24 +150,51 @@ export default function InvoiceDetails() {
 
         <div className="flex items-center gap-2">
           <Button variant="secondary">Edit</Button>
+
           <Button
             variant="destructive"
-            onClick={() => setShowDeleteConfirmDialog(true)}
-            disabled={isDeleting}
+            onClick={() => setShowDeleteInvoiceDialog(true)}
+            disabled={isDeleting || isMarkingInvoicePaid}
           >
             Delete
           </Button>
 
-          {showDeleteConfirmDialog && (
-            <DeleteInvoiceDialog
-              invoice={invoice}
-              isDeleting={isDeleting}
-              handleDelete={handleDeleteInvoice}
-              handleClose={() => setShowDeleteConfirmDialog(false)}
+          {showDeleteInvoiceDialog && (
+            <ConfirmDialog
+              title="Confirm Deletion"
+              description={`Are you sure you want to delete invoice #${invoice.id}? 
+              This action cannot be undone.`}
+              confirmLabel="Delete"
+              confirmVariant="destructive"
+              isPending={isDeleting}
+              pendingLabel="Deleting..."
+              onConfirm={handleDeleteInvoice}
+              onCancel={() => setShowDeleteInvoiceDialog(false)}
             />
           )}
 
-          <Button variant="primary">Mark as Paid</Button>
+          <Button
+            variant="primary"
+            onClick={() => setShowMarkInvoicePaidDialog(true)}
+            disabled={
+              isDeleting || isMarkingInvoicePaid || invoice.status === 'paid'
+            }
+          >
+            Mark as Paid
+          </Button>
+
+          {showMarkInvoicePaidDialog && (
+            <ConfirmDialog
+              title="Mark Invoice Paid"
+              description={`Are you sure you want to mark invoice #${invoice.id} as paid?`}
+              confirmLabel="Mark as paid"
+              confirmVariant="primary"
+              isPending={isMarkingInvoicePaid}
+              pendingLabel="Updating..."
+              onConfirm={handleMarkInvoicePaid}
+              onCancel={() => setShowMarkInvoicePaidDialog(false)}
+            />
+          )}
         </div>
       </div>
 
