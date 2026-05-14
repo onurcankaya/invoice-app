@@ -1,6 +1,6 @@
 import { type ButtonHTMLAttributes } from 'react';
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'destructive' | 'outline' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
 };
@@ -13,7 +13,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    'rounded-full font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+    'relative flex items-center justify-between rounded-full font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variants = {
     primary: 'bg-purple hover:bg-purple-light text-white',
