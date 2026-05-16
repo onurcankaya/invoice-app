@@ -1,14 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useInvoices } from '@/hooks/useInvoices';
-import { IconButton } from '@/components/ui/icon-button';
+import { Button } from '@/components/ui/button';
 import StatusBadge from '@/components/common/StatusBadge';
 import ErrorView from '@/components/common/ErrorView';
 import InvoiceListEmpty from './InvoiceListEmpty';
 import InvoiceListSkeleton from './InvoiceListSkeleton';
 import CreateInvoiceForm from './CreateInvoiceForm';
 import iconArrowRight from '@/assets/icon-arrow-right.svg';
-import iconPlus from '@/assets/icon-plus.svg';
 import { formatDate, formatCurrency } from '@/lib/formatters';
 
 function InvoiceListHeader({
@@ -25,14 +24,9 @@ function InvoiceListHeader({
         <p className="body-1">{invoiceCountLabel}</p>
       </div>
 
-      <IconButton
-        variant="primary"
-        size="lg"
-        icon={iconPlus}
-        onClick={onNewInvoice}
-      >
-        New Invoice
-      </IconButton>
+      <Button variant="primary" size="lg" onClick={onNewInvoice}>
+        + New Invoice
+      </Button>
     </header>
   );
 }

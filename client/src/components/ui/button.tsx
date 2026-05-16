@@ -1,7 +1,13 @@
 import { type ButtonHTMLAttributes } from 'react';
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'secondary' | 'destructive' | 'outline' | 'ghost';
+  variant?:
+    | 'primary'
+    | 'secondary'
+    | 'destructive'
+    | 'outline'
+    | 'ghost'
+    | 'light';
   size?: 'sm' | 'md' | 'lg';
 };
 
@@ -13,7 +19,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    'relative flex items-center justify-between rounded-full font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
+    'rounded-full font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
 
   const variants = {
     primary: 'bg-purple hover:bg-purple-light text-white',
@@ -21,6 +27,7 @@ export function Button({
     destructive: 'bg-red hover:bg-red-light text-white',
     outline: 'border border-slate text-slate hover:bg-slate hover:text-white',
     ghost: 'text-slate hover:bg-navy-light',
+    light: 'text-slate bg-light hover:bg-slate-light',
   };
 
   const sizes = {
