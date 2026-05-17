@@ -1,7 +1,13 @@
 import { type ButtonHTMLAttributes } from 'react';
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: 'primary' | 'secondary' | 'destructive' | 'outline' | 'ghost';
+export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?:
+    | 'primary'
+    | 'secondary'
+    | 'destructive'
+    | 'outline'
+    | 'ghost'
+    | 'light';
   size?: 'sm' | 'md' | 'lg';
 };
 
@@ -21,6 +27,7 @@ export function Button({
     destructive: 'bg-red hover:bg-red-light text-white',
     outline: 'border border-slate text-slate hover:bg-slate hover:text-white',
     ghost: 'text-slate hover:bg-navy-light',
+    light: 'text-slate bg-light hover:bg-slate-light',
   };
 
   const sizes = {

@@ -34,7 +34,7 @@ export default {
         orange: {
           DEFAULT: '#FF8F00',
         },
-        bg: '#F8F8FB',
+        light: '#F8F8FB',
       },
     },
   },

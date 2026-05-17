@@ -177,7 +177,7 @@ export default function InvoiceDetails() {
             variant="primary"
             onClick={() => setShowMarkInvoicePaidDialog(true)}
             disabled={
-              isDeleting || isMarkingInvoicePaid || invoice.status === 'paid'
+              isDeleting || isMarkingInvoicePaid || invoice.status !== 'pending'
             }
           >
             Mark as Paid

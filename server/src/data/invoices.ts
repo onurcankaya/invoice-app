@@ -19,6 +19,7 @@ export async function getAllInvoices(): Promise<Invoice[]> {
     const data = JSON.parse(response);
     return data;
   } catch (error) {
+    console.error(error);
     return [];
   }
 }
@@ -29,14 +30,16 @@ export async function saveInvoices(invoices: Invoice[]) {
 }
 
 export async function createInvoice(
-  invoice: CreateInvoiceDTO,
+  id: Invoice['id'],
+  data: CreateInvoiceDTO,
 ): Promise<Invoice> {
   const invoices = await getAllInvoices();
-  const updatedInvoices = [invoice, ...invoices];
+  const newInvoice = { id, ...data };
+  const updatedInvoices = [newInvoice, ...invoices];
 
   await saveInvoices(updatedInvoices);
 
-  return invoice;
+  return newInvoice;
 }
 
 export async function getInvoice(id: Invoice['id']): Promise<Invoice> {

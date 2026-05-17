@@ -7,7 +7,11 @@ import {
   markInvoicePaid,
   deleteInvoice,
 } from '../data/invoices';
-import { createInvoiceSchema, updateInvoiceSchema } from '../schemas/invoice';
+import {
+  draftInvoiceSchema,
+  createInvoiceSchema,
+  updateInvoiceSchema,
+} from '../schemas/invoice';
 import { generateId } from '../utils/generateId';
 import { Invoice } from '@shared/types/invoice';
 
@@ -20,10 +24,13 @@ router.get('/', async (req: Request, res: Response) => {
 
 router.post('/', async (req: Request, res: Response) => {
   const id = generateId();
-  const validatedData = createInvoiceSchema.parse(req.body);
 
-  const newInvoice = { id, ...validatedData };
-  const data = await createInvoice(newInvoice);
+  const validatedData =
+    req.body.status === 'draft'
+      ? draftInvoiceSchema.parse(req.body)
+      : createInvoiceSchema.parse(req.body);
+
+  const data = await createInvoice(id, validatedData);
 
   res.status(201).json(data);
 });

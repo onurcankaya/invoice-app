@@ -21,10 +21,22 @@ const invoiceSchema = z.object({
   createdAt: z.string(),
   paymentDue: z.string(),
   description: z.string(),
-  paymentTerms: z.number(),
   clientName: z.string(),
   clientEmail: z.string(),
   status: invoiceStatusSchema,
+  senderAddress: addressSchema,
+  clientAddress: addressSchema,
+  items: z.array(invoiceItemSchema),
+  total: z.number(),
+});
+
+const draftInvoiceSchema = z.object({
+  createdAt: z.string(),
+  paymentDue: z.string(),
+  description: z.string(),
+  clientName: z.string(),
+  clientEmail: z.string(),
+  status: z.literal('draft'),
   senderAddress: addressSchema,
   clientAddress: addressSchema,
   items: z.array(invoiceItemSchema),
@@ -35,23 +47,34 @@ const createInvoiceSchema = z.object({
   createdAt: z.string(),
   paymentDue: z.string(),
   description: z.string(),
-  paymentTerms: z.number(),
   clientName: z.string(),
   clientEmail: z.string(),
-  status: z.enum(['draft', 'pending']),
+  status: z.literal('pending'),
   senderAddress: addressSchema,
   clientAddress: addressSchema,
   items: z.array(invoiceItemSchema),
   total: z.number(),
 });
 
-const updateInvoiceSchema = createInvoiceSchema;
+const updateInvoiceSchema = z.object({
+  createdAt: z.string(),
+  paymentDue: z.string(),
+  description: z.string(),
+  clientName: z.string(),
+  clientEmail: z.string(),
+  status: invoiceStatusSchema,
+  senderAddress: addressSchema,
+  clientAddress: addressSchema,
+  items: z.array(invoiceItemSchema),
+  total: z.number(),
+});
 
 export {
   invoiceStatusSchema,
   addressSchema,
   invoiceItemSchema,
   invoiceSchema,
+  draftInvoiceSchema,
   createInvoiceSchema,
   updateInvoiceSchema,
 };
