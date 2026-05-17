@@ -29,15 +29,15 @@ export type Invoice = {
 };
 
 export type CreateInvoiceDTO = {
-  clientName?: string;
-  clientEmail?: string;
-  clientAddress?: Address;
-  senderAddress?: Address;
-  description?: string;
+  clientName: string;
+  clientEmail: string;
+  clientAddress: Address;
+  senderAddress: Address;
+  description: string;
   paymentDue: string;
   createdAt: string;
-  items?: InvoiceItem[];
-  total?: number;
+  items: InvoiceItem[];
+  total: number;
   status: "draft" | "pending";
 };
 
