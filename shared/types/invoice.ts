@@ -1,4 +1,4 @@
-export type InvoiceStatus = 'draft' | 'pending' | 'paid';
+export type InvoiceStatus = "draft" | "pending" | "paid";
 
 export type Address = {
   street: string;
@@ -19,7 +19,6 @@ export type Invoice = {
   createdAt: string;
   paymentDue: string;
   description: string;
-  paymentTerms: number;
   clientName: string;
   clientEmail: string;
   status: InvoiceStatus;
@@ -29,6 +28,17 @@ export type Invoice = {
   total: number;
 };
 
-export type CreateInvoiceDTO = Invoice;
+export type CreateInvoiceDTO = {
+  clientName?: string;
+  clientEmail?: string;
+  clientAddress?: Address;
+  senderAddress?: Address;
+  description?: string;
+  paymentDue: string;
+  createdAt: string;
+  items?: InvoiceItem[];
+  total?: number;
+  status: "draft" | "pending";
+};
 
-export type UpdateInvoiceDTO = Omit<Invoice, 'id'>;
+export type UpdateInvoiceDTO = Omit<Invoice, "id">;

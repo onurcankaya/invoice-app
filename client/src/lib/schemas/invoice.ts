@@ -24,32 +24,4 @@ export const createInvoiceSchema = z.object({
   items: z.array(itemSchema).min(1, 'At least one item is required'),
 });
 
-export const draftInvoiceSchema = z.object({
-  senderAddress: z.object({
-    street: z.string().optional(),
-    city: z.string().optional(),
-    postCode: z.string().optional(),
-    country: z.string().optional(),
-  }),
-  clientName: z.string().optional(),
-  clientEmail: z.string().optional(),
-  clientAddress: z.object({
-    street: z.string().optional(),
-    city: z.string().optional(),
-    postCode: z.string().optional(),
-    country: z.string().optional(),
-  }),
-  createdAt: z.string().optional(),
-  paymentTerms: z.number().optional(),
-  description: z.string().optional(),
-  items: z.array(
-    z.object({
-      name: z.string().optional(),
-      quantity: z.number().optional(),
-      price: z.number().optional(),
-    }),
-  ),
-});
-
 export type CreateInvoiceFormData = z.infer<typeof createInvoiceSchema>;
-export type DraftInvoiceFormData = z.infer<typeof draftInvoiceSchema>;

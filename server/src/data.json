@@ -1,5 +1,65 @@
 [
   {
+    "id": "RV1042",
+    "createdAt": "2026-05-17",
+    "paymentDue": "2026-06-16",
+    "description": "",
+    "clientName": "",
+    "clientEmail": "",
+    "status": "draft",
+    "senderAddress": {
+      "street": "",
+      "city": "",
+      "postCode": "",
+      "country": ""
+    },
+    "clientAddress": {
+      "street": "",
+      "city": "",
+      "postCode": "",
+      "country": ""
+    },
+    "items": [
+      {
+        "name": "",
+        "quantity": 1,
+        "price": 0,
+        "total": 0
+      }
+    ],
+    "total": 0
+  },
+  {
+    "id": "BZ0309",
+    "createdAt": "2026-05-17",
+    "paymentDue": "2026-06-16",
+    "description": "Graphic Design",
+    "clientName": "Onur Eren",
+    "clientEmail": "onur.eren.cankaya@gmail.com",
+    "status": "pending",
+    "senderAddress": {
+      "street": "19 Union Terrace",
+      "city": "London",
+      "postCode": "2200",
+      "country": "United Kingdom"
+    },
+    "clientAddress": {
+      "street": "12 Raven Street",
+      "city": "Copenhagen",
+      "postCode": "2200",
+      "country": "Denmark"
+    },
+    "items": [
+      {
+        "name": "Banner Design",
+        "quantity": 1,
+        "price": 250,
+        "total": 250
+      }
+    ],
+    "total": 250
+  },
+  {
     "id": "RG0314",
     "createdAt": "2021-09-24",
     "paymentDue": "2021-10-01",

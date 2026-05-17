@@ -1,8 +1,11 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useForm, useFieldArray, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import { Select } from '@components/ui/select';
+import { useCreateInvoice } from '@/hooks/useInvoices';
 import iconDelete from '@/assets/icon-delete.svg';
 import { formatCurrency } from '@/lib/formatters';
 import {
@@ -14,7 +17,35 @@ type CreateInvoiceFormProps = {
   onClose: () => void;
 };
 
+const defaultValues = {
+  senderAddress: {
+    street: '',
+    city: '',
+    postCode: '',
+    country: '',
+  },
+  clientName: '',
+  clientEmail: '',
+  clientAddress: {
+    street: '',
+    city: '',
+    postCode: '',
+    country: '',
+  },
+  createdAt: new Date().toISOString().split('T')[0],
+  paymentTerms: 30,
+  description: '',
+  items: [{ name: '', quantity: 1, price: 0 }],
+};
+
 export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
+  const [createInvoiceError, setCreateInvoiceError] = useState<Error | null>(
+    null,
+  );
+
+  const navigate = useNavigate();
+  const { mutate: createInvoice, isPending: isCreating } = useCreateInvoice();
+
   const {
     register,
     handleSubmit,
@@ -22,26 +53,7 @@ export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
     formState: { errors },
   } = useForm<CreateInvoiceFormData>({
     resolver: zodResolver(createInvoiceSchema),
-    defaultValues: {
-      senderAddress: {
-        street: '',
-        city: '',
-        postCode: '',
-        country: '',
-      },
-      clientName: '',
-      clientEmail: '',
-      clientAddress: {
-        street: '',
-        city: '',
-        postCode: '',
-        country: '',
-      },
-      createdAt: new Date().toISOString().split('T')[0],
-      paymentTerms: 30,
-      description: '',
-      items: [{ name: '', quantity: 1, price: 0 }],
-    },
+    defaultValues,
   });
 
   const {
@@ -65,9 +77,66 @@ export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
     return (item.quantity || 0) * (item.price || 0);
   }
 
-  function onSubmit(data: CreateInvoiceFormData) {
-    console.log('Form submitted:', data);
-    // TODO: Call API
+  function onSaveAsDraft() {
+    const formData = control._formValues;
+    submitInvoice(formData, 'draft');
+  }
+
+  function onSaveAndSend(data: CreateInvoiceFormData) {
+    submitInvoice(data, 'pending');
+  }
+
+  function submitInvoice(
+    data: CreateInvoiceFormData | Partial<CreateInvoiceFormData>,
+    status: 'pending' | 'draft',
+  ) {
+    const creationDate = new Date(
+      data.createdAt || new Date().toISOString().split('T')[0],
+    );
+    const paymentDueDate = new Date(creationDate);
+    paymentDueDate.setDate(
+      creationDate.getDate() +
+        (data.paymentTerms || defaultValues.paymentTerms),
+    );
+
+    const items = (data.items || []).map((item) => ({
+      name: item.name || '',
+      quantity: item.quantity || 0,
+      price: item.price || 0,
+      total: (item.price || 0) * (item.quantity || 0),
+    }));
+
+    const total = data.items?.reduce((sum, item) => {
+      return sum + (item.price || 0) * (item.quantity || 0);
+    }, 0);
+
+    const createInvoicePayload = {
+      createdAt: data.createdAt || defaultValues.createdAt,
+      paymentDue: paymentDueDate.toISOString().split('T')[0],
+      description: data.description || defaultValues.description,
+      clientName: data.clientName || defaultValues.clientName,
+      clientEmail: data.clientEmail || defaultValues.clientEmail,
+      clientAddress: data.clientAddress || defaultValues.clientAddress,
+      senderAddress: data.senderAddress || defaultValues.senderAddress,
+      items: items || defaultValues.items,
+      status,
+      total,
+    };
+
+    createInvoice(createInvoicePayload, {
+      onSuccess: () => {
+        onClose();
+        navigate('/');
+      },
+      onError: (error) => {
+        console.error('Failed to create invoice:', error);
+        setCreateInvoiceError(
+          error instanceof Error
+            ? error
+            : new Error('Failed to create invoice'),
+        );
+      },
+    });
   }
 
   return (
@@ -82,10 +151,27 @@ export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
       >
         <form
           className="h-full flex flex-col"
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSaveAndSend)}
         >
           <div className="flex-1 overflow-y-auto p-10 pb-[160px] space-y-10">
             <h1>New Invoice</h1>
+
+            {createInvoiceError && (
+              <div className="bg-red/10 border border-red rounded-lg p-4 flex items-center justify-between">
+                <div className="space-y-1">
+                  <h3 className="text-red font-bold">
+                    Failed to create invoice
+                  </h3>
+                  <p className="body-1">{createInvoiceError.message}</p>
+                </div>
+                <Button
+                  variant="secondary"
+                  onClick={() => setCreateInvoiceError(null)}
+                >
+                  Dismiss
+                </Button>
+              </div>
+            )}
 
             {/* Bill Form Section */}
             <div className="space-y-6">
@@ -253,7 +339,7 @@ export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
                         <Button
                           type="button"
                           variant="ghost"
-                          disabled={itemFields.length === 1}
+                          disabled={itemFields.length === 1 || isCreating}
                           onClick={() => removeItem(index)}
                         >
                           <img src={iconDelete} alt="Delete item" />
@@ -267,6 +353,7 @@ export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
                   type="button"
                   variant="secondary"
                   className="w-full text-center"
+                  disabled={isCreating}
                   onClick={() =>
                     appendItem({ name: '', quantity: 1, price: 0 })
                   }
@@ -278,13 +365,27 @@ export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
 
             {/* Footer Buttons */}
             <div className="w-full flex items-center justify-between fixed left-0 bottom-0 px-10 py-6 bg-navy rounded-tr-2xl z-60">
-              <Button variant="light" onClick={onClose}>
+              <Button
+                type="button"
+                variant="light"
+                onClick={onClose}
+                disabled={isCreating}
+              >
                 Discard
               </Button>
 
               <div className="flex gap-2">
-                <Button variant="secondary">Save as Draft</Button>
-                <Button variant="primary">Save & Send</Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={isCreating}
+                  onClick={onSaveAsDraft}
+                >
+                  Save as Draft
+                </Button>
+                <Button type="submit" variant="primary" disabled={isCreating}>
+                  {isCreating ? 'Saving...' : 'Save & Send'}
+                </Button>
               </div>
             </div>
           </div>
