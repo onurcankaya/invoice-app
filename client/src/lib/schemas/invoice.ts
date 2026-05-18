@@ -13,7 +13,7 @@ const itemSchema = z.object({
   price: z.number().min(0, 'Price must be 0 or greater'),
 });
 
-export const createInvoiceSchema = z.object({
+export const invoiceSchema = z.object({
   senderAddress: addressSchema,
   clientName: z.string().min(1, 'Client name is required'),
   clientEmail: z.email('Invalid email'),
@@ -24,4 +24,4 @@ export const createInvoiceSchema = z.object({
   items: z.array(itemSchema).min(1, 'At least one item is required'),
 });
 
-export type CreateInvoiceFormData = z.infer<typeof createInvoiceSchema>;
+export type InvoiceFormData = z.infer<typeof invoiceSchema>;

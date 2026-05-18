@@ -6,7 +6,7 @@ import StatusBadge from '@/components/common/StatusBadge';
 import ErrorView from '@/components/common/ErrorView';
 import InvoiceListEmpty from './InvoiceListEmpty';
 import InvoiceListSkeleton from './InvoiceListSkeleton';
-import CreateInvoiceForm from './CreateInvoiceForm';
+import InvoiceForm from '@/components/common/InvoiceForm';
 import iconArrowRight from '@/assets/icon-arrow-right.svg';
 import { formatDate, formatCurrency } from '@/lib/formatters';
 
@@ -36,7 +36,7 @@ function PageLayout({ children }: { children: React.ReactNode }) {
 }
 
 export default function InvoiceList() {
-  const [showCreateInvoiceFrom, setShowCreateInvoiceForm] = useState(false);
+  const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const { data: invoices, isLoading, error, refetch } = useInvoices();
 
   const invoiceCount = invoices?.length || 0;
@@ -54,7 +54,7 @@ export default function InvoiceList() {
       <PageLayout>
         <InvoiceListHeader
           invoiceCountLabel={invoiceCountLabel}
-          onNewInvoice={() => setShowCreateInvoiceForm(true)}
+          onNewInvoice={() => setShowInvoiceForm(true)}
         />
         <ErrorView
           title="Error loading invoices"
@@ -71,7 +71,7 @@ export default function InvoiceList() {
       <PageLayout>
         <InvoiceListHeader
           invoiceCountLabel={invoiceCountLabel}
-          onNewInvoice={() => setShowCreateInvoiceForm(true)}
+          onNewInvoice={() => setShowInvoiceForm(true)}
         />
         <InvoiceListSkeleton />
       </PageLayout>
@@ -83,7 +83,7 @@ export default function InvoiceList() {
       <PageLayout>
         <InvoiceListHeader
           invoiceCountLabel={invoiceCountLabel}
-          onNewInvoice={() => setShowCreateInvoiceForm(true)}
+          onNewInvoice={() => setShowInvoiceForm(true)}
         />
         <div className="flex flex-1 items-center">
           <InvoiceListEmpty />
@@ -94,14 +94,14 @@ export default function InvoiceList() {
 
   return (
     <>
-      {showCreateInvoiceFrom && (
-        <CreateInvoiceForm onClose={() => setShowCreateInvoiceForm(false)} />
+      {showInvoiceForm && (
+        <InvoiceForm mode="create" onClose={() => setShowInvoiceForm(false)} />
       )}
 
       <PageLayout>
         <InvoiceListHeader
           invoiceCountLabel={invoiceCountLabel}
-          onNewInvoice={() => setShowCreateInvoiceForm(true)}
+          onNewInvoice={() => setShowInvoiceForm(true)}
         />
 
         <ul className="space-y-4">

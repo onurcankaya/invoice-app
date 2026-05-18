@@ -5,15 +5,15 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
 import { Select } from '@components/ui/select';
-import { useCreateInvoice } from '@/hooks/useInvoices';
+import { useCreateInvoice, useUpdateInvoice } from '@/hooks/useInvoices';
 import iconDelete from '@/assets/icon-delete.svg';
 import { formatCurrency } from '@/lib/formatters';
-import {
-  createInvoiceSchema,
-  type CreateInvoiceFormData,
-} from '@/lib/schemas/invoice';
+import { invoiceSchema, type InvoiceFormData } from '@/lib/schemas/invoice';
+import type { Invoice } from '@shared/types/invoice';
 
-type CreateInvoiceFormProps = {
+type InvoiceFormProps = {
+  mode: 'create' | 'edit';
+  initialValues?: Invoice;
   onClose: () => void;
 };
 
@@ -38,22 +38,63 @@ const defaultValues = {
   items: [{ name: '', quantity: 1, price: 0 }],
 };
 
-export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
+export default function InvoiceForm({
+  mode,
+  initialValues,
+  onClose,
+}: InvoiceFormProps) {
   const [createInvoiceError, setCreateInvoiceError] = useState<Error | null>(
     null,
   );
+  const [updateInvoiceError, setUpdateInvoiceError] = useState<Error | null>(
+    null,
+  );
+
+  const { mutate: createInvoice, isPending: isCreating } = useCreateInvoice();
+  const { mutate: updateInvoice, isPending: isUpdating } = useUpdateInvoice();
 
   const navigate = useNavigate();
-  const { mutate: createInvoice, isPending: isCreating } = useCreateInvoice();
+
+  function calculatePaymentTerms(
+    createdAt: string,
+    paymentDue: string,
+  ): number {
+    const created = new Date(createdAt);
+    const due = new Date(paymentDue);
+    const diffTime = due.getTime() - created.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  }
+
+  const formDefaultValue =
+    mode === 'create'
+      ? defaultValues
+      : {
+          senderAddress: initialValues!.senderAddress,
+          clientName: initialValues!.clientName,
+          clientEmail: initialValues!.clientEmail,
+          clientAddress: initialValues!.clientAddress,
+          createdAt: initialValues!.createdAt,
+          paymentTerms: calculatePaymentTerms(
+            initialValues!.createdAt,
+            initialValues!.paymentDue,
+          ),
+          description: initialValues!.description,
+          items: initialValues!.items.map((item) => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+        };
 
   const {
     register,
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<CreateInvoiceFormData>({
-    resolver: zodResolver(createInvoiceSchema),
-    defaultValues,
+  } = useForm<InvoiceFormData>({
+    resolver: zodResolver(invoiceSchema),
+    defaultValues: formDefaultValue,
   });
 
   const {
@@ -77,17 +118,21 @@ export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
     return (item.quantity || 0) * (item.price || 0);
   }
 
-  function onSaveAsDraft() {
+  function handleSaveDraft() {
     const formData = control._formValues;
     submitInvoice(formData, 'draft');
   }
 
-  function onSaveAndSend(data: CreateInvoiceFormData) {
+  function handleSaveAndSend(data: InvoiceFormData) {
+    submitInvoice(data, 'pending');
+  }
+
+  function handleUpdate(data: InvoiceFormData) {
     submitInvoice(data, 'pending');
   }
 
   function submitInvoice(
-    data: CreateInvoiceFormData | Partial<CreateInvoiceFormData>,
+    data: InvoiceFormData | Partial<InvoiceFormData>,
     status: 'pending' | 'draft',
   ) {
     const creationDate = new Date(
@@ -98,6 +143,7 @@ export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
       creationDate.getDate() +
         (data.paymentTerms || defaultValues.paymentTerms),
     );
+    const paymentDue = paymentDueDate.toISOString().split('T')[0];
 
     const items = (data.items || []).map((item) => ({
       name: item.name || '',
@@ -106,37 +152,73 @@ export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
       total: (item.price || 0) * (item.quantity || 0),
     }));
 
-    const total = data.items?.reduce((sum, item) => {
-      return sum + (item.price || 0) * (item.quantity || 0);
-    }, 0);
+    const total =
+      data.items?.reduce((sum, item) => {
+        return sum + (item.price || 0) * (item.quantity || 0);
+      }, 0) || 0;
 
-    const createInvoicePayload = {
-      createdAt: data.createdAt || defaultValues.createdAt,
-      paymentDue: paymentDueDate.toISOString().split('T')[0],
-      description: data.description || defaultValues.description,
-      clientName: data.clientName || defaultValues.clientName,
-      clientEmail: data.clientEmail || defaultValues.clientEmail,
-      clientAddress: data.clientAddress || defaultValues.clientAddress,
-      senderAddress: data.senderAddress || defaultValues.senderAddress,
-      items: items || defaultValues.items,
-      status,
-      total,
-    };
+    if (mode === 'create') {
+      const createInvoicePayload = {
+        createdAt: data.createdAt || defaultValues.createdAt,
+        paymentDue,
+        description: data.description || defaultValues.description,
+        clientName: data.clientName || defaultValues.clientName,
+        clientEmail: data.clientEmail || defaultValues.clientEmail,
+        clientAddress: data.clientAddress || defaultValues.clientAddress,
+        senderAddress: data.senderAddress || defaultValues.senderAddress,
+        items: items || defaultValues.items,
+        status,
+        total,
+      };
 
-    createInvoice(createInvoicePayload, {
-      onSuccess: () => {
-        onClose();
-        navigate('/');
-      },
-      onError: (error) => {
-        console.error('Failed to create invoice:', error);
-        setCreateInvoiceError(
-          error instanceof Error
-            ? error
-            : new Error('Failed to create invoice'),
-        );
-      },
-    });
+      createInvoice(createInvoicePayload, {
+        onSuccess: () => {
+          onClose();
+          navigate('/');
+        },
+        onError: (error) => {
+          console.error('Failed to create invoice:', error);
+          setCreateInvoiceError(
+            error instanceof Error
+              ? error
+              : new Error('Failed to create invoice'),
+          );
+        },
+      });
+    }
+
+    if (mode === 'edit' && initialValues?.id) {
+      const updateInvoicePayload = {
+        createdAt: data.createdAt || initialValues!.createdAt,
+        paymentDue,
+        description: data.description!,
+        clientName: data.clientName!,
+        clientEmail: data.clientEmail!,
+        clientAddress: data.clientAddress!,
+        senderAddress: data.senderAddress!,
+        items,
+        status: status as 'pending',
+        total,
+      };
+
+      updateInvoice(
+        { id: initialValues.id, data: updateInvoicePayload },
+        {
+          onSuccess: () => {
+            onClose();
+          },
+
+          onError: (error) => {
+            console.error('Failed to update invoice:', error);
+            setUpdateInvoiceError(
+              error instanceof Error
+                ? error
+                : new Error('Failed to update invoice'),
+            );
+          },
+        },
+      );
+    }
   }
 
   return (
@@ -151,10 +233,14 @@ export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
       >
         <form
           className="h-full flex flex-col"
-          onSubmit={handleSubmit(onSaveAndSend)}
+          onSubmit={handleSubmit(
+            mode === 'create' ? handleSaveAndSend : handleUpdate,
+          )}
         >
           <div className="flex-1 overflow-y-auto p-10 pb-[160px] space-y-10">
-            <h1>New Invoice</h1>
+            <h1>
+              {mode === 'create' ? 'New Invoice' : `Edit #${initialValues!.id}`}
+            </h1>
 
             {createInvoiceError && (
               <div className="bg-red/10 border border-red rounded-lg p-4 flex items-center justify-between">
@@ -167,6 +253,23 @@ export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
                 <Button
                   variant="secondary"
                   onClick={() => setCreateInvoiceError(null)}
+                >
+                  Dismiss
+                </Button>
+              </div>
+            )}
+
+            {updateInvoiceError && (
+              <div className="bg-red/10 border border-red rounded-lg p-4 flex items-center justify-between">
+                <div className="space-y-1">
+                  <h3 className="text-red font-bold">
+                    Failed to update invoice
+                  </h3>
+                  <p className="body-1">{updateInvoiceError.message}</p>
+                </div>
+                <Button
+                  variant="secondary"
+                  onClick={() => setUpdateInvoiceError(null)}
                 >
                   Dismiss
                 </Button>
@@ -339,7 +442,9 @@ export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
                         <Button
                           type="button"
                           variant="ghost"
-                          disabled={itemFields.length === 1 || isCreating}
+                          disabled={
+                            itemFields.length === 1 || isCreating || isUpdating
+                          }
                           onClick={() => removeItem(index)}
                         >
                           <img src={iconDelete} alt="Delete item" />
@@ -364,30 +469,46 @@ export default function CreateInvoiceForm({ onClose }: CreateInvoiceFormProps) {
             </div>
 
             {/* Footer Buttons */}
-            <div className="w-full flex items-center justify-between fixed left-0 bottom-0 px-10 py-6 bg-navy rounded-tr-2xl z-60">
-              <Button
-                type="button"
-                variant="light"
-                onClick={onClose}
-                disabled={isCreating}
-              >
-                Discard
-              </Button>
+            {mode === 'create' ? (
+              <div className="w-full flex items-center justify-between fixed left-0 bottom-0 px-10 py-6 bg-navy rounded-tr-2xl z-60">
+                <Button
+                  type="button"
+                  variant="light"
+                  onClick={onClose}
+                  disabled={isCreating}
+                >
+                  Discard
+                </Button>
 
-              <div className="flex gap-2">
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={isCreating}
+                    onClick={handleSaveDraft}
+                  >
+                    Save as Draft
+                  </Button>
+                  <Button type="submit" variant="primary" disabled={isCreating}>
+                    {isCreating ? 'Saving...' : 'Save & Send'}
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="w-full flex items-center justify-end gap-2 fixed left-0 bottom-0 px-10 py-6 bg-navy rounded-tr-2xl z-60">
                 <Button
                   type="button"
                   variant="secondary"
-                  disabled={isCreating}
-                  onClick={onSaveAsDraft}
+                  onClick={onClose}
+                  disabled={isUpdating}
                 >
-                  Save as Draft
+                  Cancel
                 </Button>
-                <Button type="submit" variant="primary" disabled={isCreating}>
-                  {isCreating ? 'Saving...' : 'Save & Send'}
+                <Button type="submit" variant="primary" disabled={isUpdating}>
+                  {isUpdating ? 'Saving...' : 'Save Changes'}
                 </Button>
               </div>
-            </div>
+            )}
           </div>
         </form>
       </div>
