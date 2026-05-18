@@ -41,4 +41,14 @@ export type CreateInvoiceDTO = {
   status: "draft" | "pending";
 };
 
-export type UpdateInvoiceDTO = Omit<Invoice, "id">;
+export type UpdateInvoiceDTO = {
+  clientName: string;
+  clientEmail: string;
+  clientAddress: Address;
+  senderAddress: Address;
+  description: string;
+  paymentDue: string;
+  items: InvoiceItem[];
+  total: number;
+  status: "pending";
+};
