@@ -62,7 +62,7 @@ const updateInvoiceSchema = z.object({
   description: z.string(),
   clientName: z.string(),
   clientEmail: z.string(),
-  status: invoiceStatusSchema,
+  status: z.literal('pending'),
   senderAddress: addressSchema,
   clientAddress: addressSchema,
   items: z.array(invoiceItemSchema),
