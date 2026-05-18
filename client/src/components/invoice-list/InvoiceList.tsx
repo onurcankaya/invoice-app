@@ -1,22 +1,44 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useInvoices } from '@/hooks/useInvoices';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
 import StatusBadge from '@/components/common/StatusBadge';
 import ErrorView from '@/components/common/ErrorView';
 import InvoiceListEmpty from './InvoiceListEmpty';
 import InvoiceListSkeleton from './InvoiceListSkeleton';
 import InvoiceForm from '@/components/common/InvoiceForm';
 import iconArrowRight from '@/assets/icon-arrow-right.svg';
+import iconArrowDown from '@/assets/icon-arrow-down.svg';
 import { formatDate, formatCurrency } from '@/lib/formatters';
+import type { InvoiceStatus } from '@shared/types/invoice';
 
 function InvoiceListHeader({
   invoiceCountLabel,
   onNewInvoice,
+  statusFilters,
+  setStatusFilters,
 }: {
   invoiceCountLabel: string;
   onNewInvoice: () => void;
+  statusFilters: InvoiceStatus[];
+  setStatusFilters: React.Dispatch<React.SetStateAction<InvoiceStatus[]>>;
 }) {
+  function toggleFilter(statusFilter: InvoiceStatus) {
+    setStatusFilters((prev) => {
+      if (prev.includes(statusFilter)) {
+        return prev.filter((filter) => filter !== statusFilter);
+      } else {
+        return [...prev, statusFilter];
+      }
+    });
+  }
+
   return (
     <header className="flex items-center justify-between">
       <div className="space-y-2">
@@ -24,9 +46,38 @@ function InvoiceListHeader({
         <p className="body-1">{invoiceCountLabel}</p>
       </div>
 
-      <Button variant="primary" size="lg" onClick={onNewInvoice}>
-        + New Invoice
-      </Button>
+      <div className="flex gap-8">
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center gap-2">
+            <span className="body-1 font-bold">Filter by status</span>
+            <img src={iconArrowDown} alt="" />
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent>
+            <DropdownMenuCheckboxItem
+              checked={statusFilters.includes('draft')}
+              onCheckedChange={() => toggleFilter('draft')}
+            >
+              Draft
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={statusFilters.includes('pending')}
+              onCheckedChange={() => toggleFilter('pending')}
+            >
+              Pending
+            </DropdownMenuCheckboxItem>
+            <DropdownMenuCheckboxItem
+              checked={statusFilters.includes('paid')}
+              onCheckedChange={() => toggleFilter('paid')}
+            >
+              Paid
+            </DropdownMenuCheckboxItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <Button variant="primary" size="lg" onClick={onNewInvoice}>
+          + New Invoice
+        </Button>
+      </div>
     </header>
   );
 }
@@ -36,26 +87,58 @@ function PageLayout({ children }: { children: React.ReactNode }) {
 }
 
 export default function InvoiceList() {
+  const [statusFilters, setStatusFilters] = useState<InvoiceStatus[]>([]);
   const [showInvoiceForm, setShowInvoiceForm] = useState(false);
   const { data: invoices, isLoading, error, refetch } = useInvoices();
 
-  const invoiceCount = invoices?.length || 0;
+  const filteredInvoices = useMemo(() => {
+    if (statusFilters.length > 0) {
+      return invoices?.filter((invoice) =>
+        statusFilters.includes(invoice.status),
+      );
+    }
 
-  function getInvoiceCountLabel(isLoading: boolean, count: number): string {
+    return invoices;
+  }, [statusFilters, invoices]);
+
+  const invoiceCount = invoices?.length || 0;
+  const filteredInvoiceCount = filteredInvoices?.length || 0;
+
+  function getInvoiceCountLabel(isLoading: boolean): string {
     if (isLoading) return 'Loading...';
 
-    return count > 0 ? `There are ${count} invoices` : 'No invoices';
+    if (statusFilters.length > 0) {
+      return `Displaying ${filteredInvoiceCount} out of ${invoiceCount} invoices`;
+    }
+
+    return invoiceCount > 0
+      ? `There are ${invoiceCount} invoices`
+      : 'No invoices';
   }
 
-  const invoiceCountLabel = getInvoiceCountLabel(isLoading, invoiceCount);
+  const invoiceCountLabel = getInvoiceCountLabel(isLoading);
+
+  function displayActiveStatusFilters() {
+    if (statusFilters.length > 0) {
+      return (
+        <div className="flex items-center gap-2">
+          <span className="body-1 font-bold">Filtered by status:</span>
+          {statusFilters.map((filter) => (
+            <div
+              key={filter}
+              className="border border-purple px-3 py-0.5 rounded-full"
+            >
+              <span className="text-xs font-bold capitalize">{filter}</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+  }
 
   if (error) {
     return (
       <PageLayout>
-        <InvoiceListHeader
-          invoiceCountLabel={invoiceCountLabel}
-          onNewInvoice={() => setShowInvoiceForm(true)}
-        />
         <ErrorView
           title="Error loading invoices"
           error={error}
@@ -69,24 +152,34 @@ export default function InvoiceList() {
   if (isLoading) {
     return (
       <PageLayout>
-        <InvoiceListHeader
-          invoiceCountLabel={invoiceCountLabel}
-          onNewInvoice={() => setShowInvoiceForm(true)}
-        />
         <InvoiceListSkeleton />
       </PageLayout>
     );
   }
 
-  if (invoiceCount === 0) {
+  if (filteredInvoiceCount === 0) {
     return (
       <PageLayout>
         <InvoiceListHeader
           invoiceCountLabel={invoiceCountLabel}
           onNewInvoice={() => setShowInvoiceForm(true)}
+          statusFilters={statusFilters}
+          setStatusFilters={setStatusFilters}
         />
-        <div className="flex flex-1 items-center">
-          <InvoiceListEmpty />
+
+        {displayActiveStatusFilters()}
+
+        <div className="flex flex-1 items-center justify-center">
+          {invoiceCount === 0 ? (
+            <InvoiceListEmpty />
+          ) : (
+            <div className="text-center space-y-4">
+              <p className="body-1">No invoices match your filters</p>
+              <Button variant="secondary" onClick={() => setStatusFilters([])}>
+                Clear filters
+              </Button>
+            </div>
+          )}
         </div>
       </PageLayout>
     );
@@ -102,10 +195,14 @@ export default function InvoiceList() {
         <InvoiceListHeader
           invoiceCountLabel={invoiceCountLabel}
           onNewInvoice={() => setShowInvoiceForm(true)}
+          statusFilters={statusFilters}
+          setStatusFilters={setStatusFilters}
         />
 
+        {displayActiveStatusFilters()}
+
         <ul className="space-y-4">
-          {invoices?.map((invoice) => (
+          {filteredInvoices?.map((invoice) => (
             <li key={invoice.id}>
               <Link
                 to={`/invoices/${invoice.id}`}
