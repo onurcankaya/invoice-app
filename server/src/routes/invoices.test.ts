@@ -176,7 +176,7 @@ describe('PATCH /api/invoices/:id', () => {
       paymentTerms: 1,
       clientName: 'Test Client 2 updated',
       clientEmail: 'test@test.com',
-      status: 'draft',
+      status: 'pending',
       senderAddress: {
         street: 'Test Street',
         city: 'Test City',
@@ -284,7 +284,7 @@ describe('Error handling', () => {
       paymentTerms: 1,
       clientName: 'Test',
       clientEmail: 'test@test.com',
-      status: 'draft',
+      status: 'pending',
       senderAddress: {
         street: 'Test',
         city: 'Test',
